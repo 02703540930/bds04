@@ -11,6 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.devsuperior.bds04.services.exceptions.DatabaseException;
+import com.devsuperior.bds04.services.exceptions.ResourceUnauthorizedException;
+
 @ControllerAdvice
 public class ResourceExceptionHandler {	
 	
@@ -30,5 +33,29 @@ public class ResourceExceptionHandler {
 		
 		return ResponseEntity.status(status).body(err);
 	}
-
+	
+	//adicionado do dscatalog	
+	@ExceptionHandler(ResourceUnauthorizedException.class)
+	public ResponseEntity<StandardError> entityNotFound(ResourceUnauthorizedException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.UNAUTHORIZED; //401
+		StandardError err = new StandardError();
+		err.setTimestamp(Instant.now());
+		err.setStatus(status.value());
+		err.setError("Resource not found");
+		err.setMessage(e.getMessage());
+		err.setPath(request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
+	@ExceptionHandler(DatabaseException.class)
+	public ResponseEntity<StandardError> entityNotFound(DatabaseException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.BAD_REQUEST; //403
+		StandardError err = new StandardError();
+		err.setTimestamp(Instant.now());
+		err.setStatus(status.value());
+		err.setError("Database exception");
+		err.setMessage(e.getMessage());
+		err.setPath(request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}	
 }
